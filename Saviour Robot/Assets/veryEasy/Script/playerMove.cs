@@ -7,6 +7,7 @@ public class playerMove : MonoBehaviour
 {
     [Header ("Component")]
     public Rigidbody2D thePlayer;
+    public TextMeshProUGUI theStatus;
 
     [Header("Level")]
     public GameObject drone;
@@ -22,7 +23,7 @@ public class playerMove : MonoBehaviour
     [Header("Timer")]
     public float timer;
 
-    
+ 
 
     void Start()
     {
@@ -35,7 +36,21 @@ public class playerMove : MonoBehaviour
     {
         if (gameWin)//menang
         {
-            
+            theStatus.text="You've Won";
+            //Debug.Log("Win  win situatuiin");
+            GameObject[] foundObjects = GameObject.FindGameObjectsWithTag("enemy"); // NOTE: only ACTIVE gameObjects will be found
+ 
+            if (foundObjects.Length < 10){
+                foreach (GameObject go in foundObjects)
+                {
+                    Destroy(go);
+                }
+            }
+            else
+            {
+                //do something else (stop the game etc.)
+            }
+            //destroyAll("enemy");
         }
         else//selagi tak menang
         {
@@ -46,7 +61,8 @@ public class playerMove : MonoBehaviour
                 {
                     gameStart = false;
                     StartCoroutine(theCoroutine());
-                    Debug.Log("Start");
+                    theStatus.text = "Start";
+                    //Debug.Log("Start");
                 }
             }
             else
@@ -56,13 +72,16 @@ public class playerMove : MonoBehaviour
                     thePlayer.velocity = new Vector2(0, 1) * jumpForce * Time.deltaTime;
                 }
 
-                if ((transform.position.y <= -4 || transform.position.y >= 4) && gameWin==false)
+                if (transform.position.y <= -4 || transform.position.y >= 4)
                 {
                     playerDeath();
                 }
-                timer -= Time.deltaTime;
+                timer = timer - Time.deltaTime;
+                //string theTimer = timer.ToString + "m";
+                theStatus.text = timer.ToString() + "km";
+                Debug.Log(timer);
             }
-            if(timer==0)
+            if(timer<=0)
             {
                 gameWin = true;
             }
@@ -72,7 +91,7 @@ public class playerMove : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.collider.tag=="enemy"&& gameWin==false)
+        if(collision.collider.tag=="enemy")
         {
             playerDeath();
         }
@@ -80,7 +99,10 @@ public class playerMove : MonoBehaviour
 
     void playerDeath()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        if(!gameWin){
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);   
+        }
+        
     }
 
     IEnumerator theCoroutine()
@@ -96,4 +118,11 @@ public class playerMove : MonoBehaviour
             Instantiate(corona, new Vector2(12, yCorona), transform.rotation);
         }
     }
+    /*void destroyAll(string tag){
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            Destroy(enemies[i]);
+        }
+    }*/
 }
